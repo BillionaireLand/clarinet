@@ -69,7 +69,7 @@ type ClarityTypetoValue = {
   [ClarityType.Buffer]: BufferCV;
 };
 
-const ClarityTypeR = Object.fromEntries(Object.entries(ClarityType).map(([k, v]) => [v, k]));
+const ClarityTypeReversed = Object.fromEntries(Object.entries(ClarityType).map(([k, v]) => [v, k]));
 
 // the "simple clarity values" are CVs that can't be nested and have `value` property
 type SimpleCV = BooleanCV | IntCV | UIntCV | StringAsciiCV | StringUtf8CV;
@@ -113,7 +113,7 @@ function checkCVType<T extends ClarityType>(
   if (!isCV) {
     throw new ClarityTypeError({
       message: `actual value must ${notStr(isNot)}be a Clarity "${
-        ClarityTypeR[expectedType]
+        ClarityTypeReversed[expectedType]
       }", received "${typeof actual}"`,
     });
   }
@@ -130,10 +130,10 @@ function checkCVType<T extends ClarityType>(
     throw new ClarityTypeError({
       // generic and short message
       message: `actual value must ${notStr(isNot)}be a Clarity "${
-        ClarityTypeR[expectedType]
-      }", received "${ClarityTypeR[actual.type]}"${errorCode}`,
-      actual: ClarityTypeR[actual.type],
-      expected: ClarityTypeR[expectedType],
+        ClarityTypeReversed[expectedType]
+      }", received "${ClarityTypeReversed[actual.type]}"${errorCode}`,
+      actual: ClarityTypeReversed[actual.type],
+      expected: ClarityTypeReversed[expectedType],
     });
   }
 
@@ -223,7 +223,7 @@ expect.extend({
     return {
       pass: true,
       message: () =>
-        `actual value must ${notStr(this.isNot)}be a Clarity "${ClarityTypeR[expectedType]}"`,
+        `actual value must ${notStr(this.isNot)}be a Clarity "${ClarityTypeReversed[expectedType]}"`,
     };
   },
 
