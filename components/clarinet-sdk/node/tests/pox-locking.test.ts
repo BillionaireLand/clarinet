@@ -181,7 +181,7 @@ describe("test pox-4", () => {
     expect(poxInfo.result.type).toBe(ClarityType.ResponseOk);
   });
 
-  it.only("can call get-pox-info", () => {
+  it("can call get-pox-info", () => {
     const account = accounts[0];
     const rewardCycle = 0;
     const burnBlockHeight = 0;
@@ -191,7 +191,6 @@ describe("test pox-4", () => {
 
     expect(poxInfo.result.type).toBe(ClarityType.ResponseOk);
 
-    console.log(poxInfo.result);
     expect(poxInfo.result).toHaveProperty(
       "value.value.min-amount-ustx",
       Cl.uint(stackingThreshold),
