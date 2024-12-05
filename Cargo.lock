@@ -801,7 +801,6 @@ dependencies = [
 [[package]]
 name = "clarity"
 version = "2.3.0"
-source = "git+https://github.com/stacks-network/stacks-core.git?branch=feat/clarity-wasm-develop#28c1d9eecfd26443b6f78de754b51b9dcfac8402"
 dependencies = [
  "getrandom 0.2.8",
  "hashbrown 0.14.3",
@@ -875,7 +874,7 @@ dependencies = [
  "log",
  "memchr",
  "pico-args",
- "pox-locking",
+ "pox-locking 2.4.0 (git+https://github.com/stacks-network/stacks-core.git?branch=feat/clarity-wasm-develop)",
  "prettytable-rs",
  "regex",
  "reqwest",
@@ -2677,7 +2676,6 @@ dependencies = [
 [[package]]
 name = "libstackerdb"
 version = "0.0.1"
-source = "git+https://github.com/stacks-network/stacks-core.git?branch=feat/clarity-wasm-develop#28c1d9eecfd26443b6f78de754b51b9dcfac8402"
 dependencies = [
  "clarity",
  "secp256k1 0.24.3",
@@ -3343,6 +3341,15 @@ name = "powerfmt"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391"
+
+[[package]]
+name = "pox-locking"
+version = "2.4.0"
+dependencies = [
+ "clarity",
+ "slog",
+ "stacks-common",
+]
 
 [[package]]
 name = "pox-locking"
@@ -4624,7 +4631,6 @@ dependencies = [
 [[package]]
 name = "stacks-common"
 version = "0.0.2"
-source = "git+https://github.com/stacks-network/stacks-core.git?branch=feat/clarity-wasm-develop#28c1d9eecfd26443b6f78de754b51b9dcfac8402"
 dependencies = [
  "chrono",
  "curve25519-dalek 2.0.0",
@@ -4723,7 +4729,6 @@ dependencies = [
 [[package]]
 name = "stackslib"
 version = "0.0.1"
-source = "git+https://github.com/stacks-network/stacks-core.git?branch=feat/clarity-wasm-develop#28c1d9eecfd26443b6f78de754b51b9dcfac8402"
 dependencies = [
  "chrono",
  "clar2wasm",
@@ -4738,7 +4743,7 @@ dependencies = [
  "mio 0.6.23",
  "nix 0.23.2",
  "percent-encoding",
- "pox-locking",
+ "pox-locking 2.4.0",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
  "rand_core 0.6.4",
