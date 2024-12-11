@@ -248,7 +248,7 @@ impl ClarityDatastore {
     #[cfg(not(target_arch = "wasm32"))]
     fn fetch_data<T: serde::de::DeserializeOwned>(&self, path: &str) -> Result<Option<T>> {
         let url = format!("{}{}", self.remote_data_settings.api_url, path);
-        println!("fetching: {}", url);
+        // println!("fetching: {}", url);
         let response =
             reqwest::blocking::get(url).unwrap_or_else(|e| panic!("unable to fetch data: {}", e));
 
@@ -280,9 +280,17 @@ impl ClarityDatastore {
         }
     }
 
-    fn get_remote_chaintip(&mut self, height: u32) -> String {
+    fn get_remote_chaintip(&mut self) -> String {
+        let height = self
+            .get_current_block_height()
+            .min(self.remote_data_settings.initial_height.unwrap());
+        println!(
+            "current_block_height is: {}, fetching for {}",
+            self.get_current_block_height(),
+            height
+        );
+
         if let Some(cached) = self.remote_chaintip_cache.get(&height) {
-            println!("using cached chaintip for height: {}", height);
             return cached.to_string();
         }
         println!("fetching remote chaintip for height: {}", height);
@@ -327,10 +335,7 @@ impl ClarityDatastore {
 
     fn fetch_clarity_marf_value(&mut self, key: &str) -> Result<Option<String>> {
         let key_hash = TrieHash::from_key(key);
-        // the block height should be the min value between current block height and initial height
-        // making sure we don't ever try reading data on remote network with a higher block height than the initial one
-        let block_height = self.get_current_block_height();
-        let remote_chaintip = self.get_remote_chaintip(block_height);
+        let remote_chaintip = self.get_remote_chaintip();
         let path = format!(
             "/v2/clarity/marf/{}?tip={}&proof=false",
             key_hash, remote_chaintip
@@ -345,16 +350,7 @@ impl ClarityDatastore {
     ) -> Result<Option<String>> {
         let addr = contract.issuer.to_string();
         let contract = contract.name.to_string();
-        // the block height should be the min value between current block height and initial height
-        // making sure we don't ever try reading data on remote network with a higher block height than the initial one
-        let block_height = self.get_current_block_height();
-        let remote_chaintip = self.get_remote_chaintip(block_height);
-        uprint!(
-            "fetching METADATA from network, {}/{}/{}",
-            addr,
-            contract,
-            key
-        );
+        let remote_chaintip = self.get_remote_chaintip();
 
         let url = format!(
             "/v2/clarity/metadata/{}/{}/{}?tip={}",
@@ -372,10 +368,7 @@ impl ClarityBackingStore for ClarityDatastore {
         Ok(())
     }
 
-    /// fetch K-V out of the committed datastore
     fn get_data(&mut self, key: &str) -> Result<Option<String>> {
-        println!("get_data({})", key);
-
         match self.store.get(key) {
             Some(data) => Ok(self.get_latest_data(data)),
             None => {
@@ -466,7 +459,6 @@ impl ClarityBackingStore for ClarityDatastore {
         contract: &QualifiedContractIdentifier,
         key: &str,
     ) -> Result<Option<String>> {
-        println!("get_metadata({}, {})", contract, key);
         let metadata = self.metadata.get(&(contract.to_string(), key.to_string()));
         if metadata.is_some() {
             return Ok(metadata.cloned());
