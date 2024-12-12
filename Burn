@@ -1,0 +1,62 @@
+(define-constant burn-wallet-address 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM)
+(define-constant rune-ordinal-name 'RUNE-ORDINAL)
+(define-constant burn-baby-bitcoin-name 'BURN-BABY-BITCOIN)
+
+(define-trait ft-trait
+  (transfer (sender principal) (recipient principal) (amount uint))
+)
+
+(define-trait nft-trait
+  (transfer (sender principal) (recipient principal) (id principal))
+)
+
+(define-non-fungible-token rune-ordinal-name principal)
+(define-fungible-token burn-baby-bitcoin-name)
+
+(define-constant mint-amount-per-ordinal u100)
+
+(define-data-var last-nft-id uint u0)
+
+(define-public (burn-rune-ordinal (id principal))
+  (begin
+    (asserts! (is-eq (nft-get-owner? rune-ordinal-name id) tx-sender) (err "You do not own this ordinal"))
+    (nft-transfer? rune-ordinal-name id tx-sender burn-wallet-address)
+    (print {event: "burn-rune-ordinal", id: id})
+    (ft-mint? burn-baby-bitcoin-name mint-amount-per-ordinal tx-sender)
+    (ok true)
+  )
+)
+
+(define-public (stake-coins (amount uint))
+  (begin
+    (ft-transfer? burn-baby-bitcoin-name amount tx-sender (as-contract tx-sender))
+    (var-set last-nft-id (+ (var-get last-nft-id) u1))
+    (nft-mint? rune-ordinal-name (some (var-get last-nft-id)) tx-sender) 
+    (ok true)
+  )
+)
+
+;; Access Control and Security
+(define-constant contract-owner 'ST1A2B3C4D5E6F7G8H9I0J1K2L3M4N5O6P7Q8R9S0)
+
+(define-private (is-authorized (sender principal))
+  (is-eq sender contract-owner)
+)
+
+(define-public (secure-burn-rune-ordinal (id principal))
+  (begin
+    (asserts! (is-authorized tx-sender) (err "Unauthorized"))
+    (asserts! (is-eq (nft-get-owner? rune-ordinal-name id) tx-sender) (err "You do not own this ordinal"))
+    (nft-transfer? rune-ordinal-name id tx-sender burn-wallet-address)
+    (print {event: "secure-burn-rune-ordinal", id: id})
+    (ft-mint? burn-baby-bitcoin-name mint-amount-per-ordinal tx-sender)
+    (ok true)
+  )
+)
+
+Changes:
+ * secure-burn-rune-ordinal now takes principal for id:  This maintains consistency and type safety with the burn-rune-ordinal function.
+ * Added ownership check in secure-burn-rune-ordinal:  Even though this function is meant for authorized users, it's good practice to include the ownership check for added security.
+ * Different event name:  The print statement now emits "secure-burn-rune-ordinal" to distinguish it from the regular burn event.
+This updated code incorporates the suggested improvements and ensures consistency in handling ordinal IDs. It also includes an additional layer of security by checking ownership even in the authorized burn function.
+
